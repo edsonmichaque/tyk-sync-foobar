@@ -3,7 +3,7 @@ VERSION = v0.1.0
 DIST_DIR = dist
 
 # Define the target platforms
-PLATFORMS = windows_amd64 macos_amd64 macos_arm64
+PLATFORMS = windows_amd64 windows_arm64 macos_amd64 macos_arm64 linux_amd64 linux_arm64
 
 # Default target
 all: $(PLATFORMS)
