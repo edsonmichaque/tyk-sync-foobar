@@ -47,4 +47,4 @@ release-gitlab: all
 		--name "Release $(VERSION)" \
 		--tag-name $(VERSION) \
 		--description "Automated release of version $(VERSION)" \
-		$(foreach file,$(wildcard dist/*),--assets-link "{\"name\":\"$(notdir $(file))\",\"url\":\"${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/$(notdir $(file))\"}")
+		$(foreach file,$(wildcard dist/*),--assets-link '{"name":"$(notdir $(file))","url":"${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/$(notdir $(file))"}')
