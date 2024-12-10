@@ -1,53 +1,29 @@
 # Define the version and output directory
 VERSION = v0.1.0
 DIST_DIR = dist
-
-# Define the target platforms
-PLATFORMS = windows_amd64 windows_arm64 macos_amd64 macos_arm64 linux_amd64 linux_arm64
-
-# Docker image name and version
 IMAGE_NAME = edsonmichaque/tyk-sync-foobar
-IMAGE_VERSION = $(VERSION)
 
 # Default target
-all: $(PLATFORMS)
+all: build
 
-# Rule to copy the script to each platform-specific directory
-$(PLATFORMS):
-	mkdir -p $(DIST_DIR)
-	cp foobar.sh $(DIST_DIR)/tyk-sync-foobar_$(VERSION)_$@
+# Build all platforms
+build:
+	@./scripts/ci.sh $(VERSION) $(DIST_DIR) $(IMAGE_NAME) build --compress
 
-# Target to create a release, tag the version, and attach assets using GitHub CLI
-release: all
-	gh release create $(VERSION) $(DIST_DIR)/* --title "Release $(VERSION)" --notes "Automated release of version $(VERSION)"
+# Create GitHub release
+release-github: clean
+	@./scripts/ci.sh $(VERSION) $(DIST_DIR) $(IMAGE_NAME) release --github
 
-# Target to build and publish the Docker image for multiple platforms
-docker-build:
-	@if ! docker buildx ls | grep -q "builder \* docker"; then \
-		echo "Setting up Docker buildx..."; \
-		docker buildx create --use --name builder || true; \
-		docker buildx inspect --bootstrap; \
-	fi
-	docker buildx build --platform linux/amd64,linux/arm64 \
-		-t $(IMAGE_NAME):$(IMAGE_VERSION) \
-		-t $(IMAGE_NAME):latest \
-		--push .
+# Create GitLab release  
+release-gitlab: clean
+	@./scripts/ci.sh $(VERSION) $(DIST_DIR) $(IMAGE_NAME) release --gitlab
 
-# Target to publish the Docker image (now just an alias for docker-build)
-docker-publish: docker-build
+# Build and push Docker images
+docker:
+	@./scripts/ci.sh $(VERSION) $(DIST_DIR) $(IMAGE_NAME) docker
 
-# Clean up the dist directory
+# Clean up build artifacts
 clean:
-	rm -rf $(DIST_DIR) 
+	@./scripts/ci.sh $(VERSION) $(DIST_DIR) $(IMAGE_NAME) clean
 
-
-# Target to create a release and attach assets using GitLab CLI
-release-gitlab: all
-	release-cli create \
-		--name "Release $(VERSION)" \
-		--tag-name $(VERSION) \
-		--description "Automated release of version $(VERSION)" \
-		--assets-links="[$$(for file in dist/*; do \
-			echo -n \"{\\\"name\\\":\\\"$$(basename $$file)\\\",\\\"url\\\":\\\"${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/$$(basename $$file)\\\"}\"; \
-			if [ ! \$$file = \$$(ls dist/* | tail -n1) ]; then echo -n ','; fi; \
-		done)]"
+.PHONY: all build release-github release-gitlab docker clean
