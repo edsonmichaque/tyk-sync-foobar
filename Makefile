@@ -19,8 +19,6 @@ $(PLATFORMS):
 
 # Target to create a release, tag the version, and attach assets using GitHub CLI
 release: all
-	git tag $(VERSION)
-	git push origin $(VERSION)
 	gh release create $(VERSION) $(DIST_DIR)/* --title "Release $(VERSION)" --notes "Automated release of version $(VERSION)"
 
 # Target to build and publish the Docker image for multiple platforms
@@ -41,3 +39,12 @@ docker-publish: docker-build
 # Clean up the dist directory
 clean:
 	rm -rf $(DIST_DIR) 
+
+
+# Target to create a release and attach assets using GitLab CLI
+release-gitlab: all
+	release-cli create \
+		--name "Release $(VERSION)" \
+		--tag-name $(VERSION) \
+		--description "Automated release of version $(VERSION)" \
+		--assets-link "$(ls dist/* | xargs -I {} echo "{\"name\":\"$(basename {})\",\"url\":\"${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/{}\"}" | paste -sd "," -)"

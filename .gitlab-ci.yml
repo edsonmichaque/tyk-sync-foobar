@@ -21,12 +21,7 @@ release:
     - apk add --no-cache curl
     - curl -L "https://gitlab.com/gitlab-org/release-cli/-/releases/v0.16.0/downloads/release-cli-linux-amd64" -o /usr/local/bin/release-cli
     - chmod +x /usr/local/bin/release-cli
-    - >
-      release-cli create
-      --name "Release ${CI_COMMIT_TAG}"
-      --tag-name ${CI_COMMIT_TAG}
-      --description "Automated release of version ${CI_COMMIT_TAG}"
-      --assets-link "$(ls dist/* | xargs -I {} echo "{\"name\":\"$(basename {})\",\"url\":\"${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/{}\"}" | paste -sd "," -)"
+    - make release-gitlab VERSION=${CI_COMMIT_TAG} IMAGE_NAME=${IMAGE_NAME}
     - make docker-publish VERSION=${CI_COMMIT_TAG} IMAGE_NAME=${IMAGE_NAME}
   artifacts:
     paths:
