@@ -47,6 +47,7 @@ release-gitlab: all
 		--name "Release $(VERSION)" \
 		--tag-name $(VERSION) \
 		--description "Automated release of version $(VERSION)" \
-		--assets-links='[$(shell for file in dist/*; do \
-			echo -n "{\"name\":\"$$(basename $$file)\",\"url\":\"${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/$$(basename $$file)\"},"; \
-		done | sed "s/,$$//" )]'
+		--assets-links="[$$(for file in dist/*; do \
+			echo -n \"{\\\"name\\\":\\\"$$(basename $$file)\\\",\\\"url\\\":\\\"${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/$$(basename $$file)\\\"}\"; \
+			if [ ! \$$file = \$$(ls dist/* | tail -n1) ]; then echo -n ','; fi; \
+		done)]"

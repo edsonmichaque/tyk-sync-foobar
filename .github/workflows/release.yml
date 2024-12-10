@@ -19,14 +19,14 @@ jobs:
     - name: Build distributions
       run: |
         VERSION=${GITHUB_REF#refs/tags/}
-        make all VERSION=$VERSION
+        make build VERSION=$VERSION
 
     - name: Create GitHub Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         VERSION=${GITHUB_REF#refs/tags/}
-        gh release create $VERSION dist/* --title "Release $VERSION" --notes "Automated release of version $VERSION"
+        make release-github VERSION=$VERSION
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -40,4 +40,4 @@ jobs:
     - name: Build and push Docker image
       run: |
         VERSION=${GITHUB_REF#refs/tags/}
-        make docker-publish VERSION=$VERSION
+        make docker VERSION=$VERSION

@@ -1,0 +1,6 @@
+#compdef foobar.sh
+
+_arguments -s \
+  '(-h --help)'{-h,--help}'[Show help message]' \
+  '(-v --verbose)'{-v,--verbose}'[Enable verbose output]' \
+  && return 0 

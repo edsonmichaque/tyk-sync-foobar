@@ -17,12 +17,12 @@ before_script:
 release:
   stage: release
   script:
-    - make all VERSION=${CI_COMMIT_TAG} IMAGE_NAME=${IMAGE_NAME}
+    - make build VERSION=${CI_COMMIT_TAG} IMAGE_NAME=${IMAGE_NAME}
     - apk add --no-cache curl
     - curl -L "https://gitlab.com/gitlab-org/release-cli/-/releases/v0.16.0/downloads/release-cli-linux-amd64" -o /usr/local/bin/release-cli
     - chmod +x /usr/local/bin/release-cli
     - make release-gitlab VERSION=${CI_COMMIT_TAG} IMAGE_NAME=${IMAGE_NAME}
-    - make docker-publish VERSION=${CI_COMMIT_TAG} IMAGE_NAME=${IMAGE_NAME}
+    - make docker VERSION=${CI_COMMIT_TAG} IMAGE_NAME=${IMAGE_NAME}
   artifacts:
     paths:
       - dist/
