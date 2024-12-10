@@ -5,6 +5,10 @@ DIST_DIR = dist
 # Define the target platforms
 PLATFORMS = windows_amd64 windows_arm64 macos_amd64 macos_arm64 linux_amd64 linux_arm64
 
+# Docker image name and version
+IMAGE_NAME = edsonmichaque/tyk-sync-foobar
+IMAGE_VERSION = $(VERSION)
+
 # Default target
 all: $(PLATFORMS)
 
@@ -18,6 +22,19 @@ release: all
 	git tag $(VERSION)
 	git push origin $(VERSION)
 	gh release create $(VERSION) $(DIST_DIR)/* --title "Release $(VERSION)" --notes "Automated release of version $(VERSION)"
+
+# Target to build the Docker image for multiple platforms
+docker-build:
+	@if ! docker buildx ls | grep -q "builder \* docker"; then \
+		echo "Setting up Docker buildx..."; \
+		docker buildx create --use --name builder || true; \
+		docker buildx inspect --bootstrap; \
+	fi
+	docker buildx build --platform linux/amd64,linux/arm64 -t $(IMAGE_NAME):$(IMAGE_VERSION) --push .
+
+# Target to publish the Docker image
+docker-publish: docker-build
+	docker push $(IMAGE_NAME):$(IMAGE_VERSION)
 
 # Clean up the dist directory
 clean:
