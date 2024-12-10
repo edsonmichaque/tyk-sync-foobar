@@ -8,18 +8,21 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
+      
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Build distributions
-      run: make all
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/}
+        make all VERSION=$VERSION
 
     - name: Create GitHub Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         VERSION=${GITHUB_REF#refs/tags/}
-        gh auth login --with-token <<< "${GITHUB_TOKEN}"
-        gh release create $VERSION dist/* --title "Release $VERSION" --notes "Automated release of version $VERSION" 
+        gh release create $VERSION dist/* --title "Release $VERSION" --notes "Automated release of version $VERSION"
