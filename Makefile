@@ -23,18 +23,20 @@ release: all
 	git push origin $(VERSION)
 	gh release create $(VERSION) $(DIST_DIR)/* --title "Release $(VERSION)" --notes "Automated release of version $(VERSION)"
 
-# Target to build the Docker image for multiple platforms
+# Target to build and publish the Docker image for multiple platforms
 docker-build:
 	@if ! docker buildx ls | grep -q "builder \* docker"; then \
 		echo "Setting up Docker buildx..."; \
 		docker buildx create --use --name builder || true; \
 		docker buildx inspect --bootstrap; \
 	fi
-	docker buildx build --platform linux/amd64,linux/arm64 -t $(IMAGE_NAME):$(IMAGE_VERSION) --push .
+	docker buildx build --platform linux/amd64,linux/arm64 \
+		-t $(IMAGE_NAME):$(IMAGE_VERSION) \
+		-t $(IMAGE_NAME):latest \
+		--push .
 
-# Target to publish the Docker image
+# Target to publish the Docker image (now just an alias for docker-build)
 docker-publish: docker-build
-	docker push $(IMAGE_NAME):$(IMAGE_VERSION)
 
 # Clean up the dist directory
 clean:
