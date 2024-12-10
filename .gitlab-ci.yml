@@ -12,7 +12,7 @@ stages:
 
 before_script:
   - apk add --no-cache make
-  - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
+  - echo "$DOCKERHUB_TOKEN" | docker login -u $DOCKERHUB_USERNAME --password-stdin
 
 release:
   stage: release
