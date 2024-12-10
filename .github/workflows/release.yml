@@ -21,4 +21,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         VERSION=${GITHUB_REF#refs/tags/}
+        gh auth login --with-token <<< "${GITHUB_TOKEN}"
         gh release create $VERSION dist/* --title "Release $VERSION" --notes "Automated release of version $VERSION" 
